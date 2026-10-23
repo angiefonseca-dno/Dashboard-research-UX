@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="es" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard UX Research</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        'ux-darkest': '#7A3CE3',
+                        'ux-primary': '#9255FD',
+                        'ux-secondary': '#A877FD',
+                        'ux-light': '#C4A1FF',
+                        'ux-light-bg': '#F1EAFF',
+                        'ux-light-surface': '#ffffff',
+                        'ux-dark-bg': '#0f172a',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        
+        /* --- 1. Animaciones de Fondo Fluidas (Blobs) --- */
+        .blob {
+            position: fixed;
+            filter: blur(80px);
+            z-index: -1;
+            opacity: 0.7;
+            border-radius: 50%;
+            animation: moveBlobs 15s infinite alternate ease-in-out;
+            transition: opacity 0.5s ease;
+        }
+        .dark .blob { opacity: 0.35; }
+
+        .blob-1 { background: #9255FD; width: 45vw; height: 45vw; top: -10%; left: -10%; }
+        .blob-2 { background: #A877FD; width: 40vw; height: 40vw; bottom: -10%; right: -5%; animation-delay: -5s; animation-direction: alternate-reverse; }
+        .blob-3 { background: #C4A1FF; width: 35vw; height: 35vw; top: 30%; left: 30%; animation-delay: -10s; }
+
+        @keyframes moveBlobs {
+            0% { transform: translate(0, 0) scale(1); }
+            50% { transform: translate(5%, 10%) scale(1.05); }
+            100% { transform: translate(-5%, 5%) scale(0.95); }
+        }
+
+        /* --- 2. Entrada Escalonada (Staggered Fade-in) --- */
+        .animate-enter {
+            opacity: 0;
+            transform: translateY(40px);
+            animation: slideUpFade 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        
+        @keyframes slideUpFade {
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .delay-0 { animation-delay: 0.1s; }
+        .delay-1 { animation-delay: 0.2s; }
+        .delay-2 { animation-delay: 0.3s; }
+        .delay-3 { animation-delay: 0.4s; }
+        .delay-4 { animation-delay: 0.5s; }
+        .delay-5 { animation-delay: 0.6s; }
+
+        /* --- 3. Glassmorphism & Hover Bouncy Effects --- */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            box-shadow: 0 8px 20px rgba(146, 85, 253, 0.05);
+            /* Bouncy transition cubic-bezier */
+            transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), 
+                        box-shadow 0.4s ease, 
+                        background 0.4s ease, 
+                        border-color 0.4s ease;
+        }
+        
+        .dark .glass-card {
+            background: rgba(30, 41, 59, 0.65);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+        }
+
+        /* The Bouncy Hover Scale 1.02 and Glow */
+        .glass-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            background: rgba(255, 255, 255, 0.85);
+            border-color: rgba(146, 85, 253, 0.3);
+            box-shadow: 0 25px 50px -12px rgba(146, 85, 253, 0.25), 0 0 15px rgba(146, 85, 253, 0.1);
+            z-index: 10;
+        }
+
+        .dark .glass-card:hover {
+            background: rgba(30, 41, 59, 0.85);
+            border-color: rgba(168, 119, 253, 0.3);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7), 0 0 15px rgba(122, 60, 227, 0.3);
+        }
+
+        /* --- 4. Micro-interacción Botón Theme --- */
+        .theme-btn {
+            transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .theme-btn:active {
+            transform: scale(0.85) rotate(45deg);
+        }
+        
+        canvas {
+            transition: opacity 0.3s ease;
+        }
+    </style>
+</head>
+<body class="bg-ux-light-bg dark:bg-ux-dark-bg text-slate-800 dark:text-slate-200 min-h-screen relative transition-colors duration-500 overflow-x-hidden p-4 md:p-8 lg:p-12">
+
+    <!-- Orbes Animados de Fondo -->
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+
+    <div class="max-w-7xl mx-auto w-full relative z-10">
+        
+        <!-- Header Animado -->
+        <header class="glass-card animate-enter delay-0 rounded-3xl px-8 py-6 mb-10 flex justify-between items-center">
+            <div>
+                <h1 class="text-3xl md:text-4xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-ux-darkest via-ux-primary to-ux-secondary dark:from-white dark:to-ux-light drop-shadow-sm">
+                    UX Research Dashboard
+                </h1>
+                <p class="text-sm md:text-base text-gray-600 dark:text-slate-400 mt-2 font-medium flex items-center gap-2">
+                    <i class="fa-solid fa-chart-pie text-ux-primary"></i>
+                    Resultados Fase: Empatizar & Definir
+                </p>
+            </div>
+            
+            <button id="themeToggle" class="theme-btn w-14 h-14 rounded-full bg-white/80 dark:bg-slate-800/80 shadow-md border border-white dark:border-slate-600 flex items-center justify-center text-ux-primary hover:bg-white dark:hover:bg-slate-700 hover:scale-110 focus:outline-none">
+                <i id="icon-sun" class="fa-solid fa-sun hidden dark:block text-yellow-400 text-xl transition-all duration-300"></i>
+                <i id="icon-moon" class="fa-solid fa-moon block dark:hidden text-xl transition-all duration-300"></i>
+            </button>
+        </header>
+
+        <!-- Contenedor Grid -->
+        <main class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            
+            <!-- TARJETA 1: Dispositivos -->
+            <article class="glass-card animate-enter delay-1 rounded-3xl p-7 flex flex-col h-full">
+                <header class="mb-4">
+                    <h2 class="font-bold text-sm uppercase tracking-wider text-gray-500 dark:text-slate-400">1. Dispositivos de Exploración</h2>
+                </header>
+                <div class="relative w-full h-48 mb-6 flex-shrink-0">
+                    <canvas id="chartDevices"></canvas>
+                </div>
+                <div class="mt-auto bg-ux-primary/5 dark:bg-ux-primary/10 border border-ux-primary/10 rounded-2xl p-4">
+                    <p class="text-sm text-ux-darkest dark:text-ux-light leading-relaxed">
+                        <span class="font-black tracking-wide text-[11px] uppercase bg-ux-primary text-white px-2 py-1 rounded-md mr-1 shadow-sm">Insight</span><br/>
+                        El usuario inicia en móvil, pero el 50% migra al PC para pagos complejos. Se debe exigir enfoque <strong>Mobile-First</strong> e implementar la función "Guardar carrito" para una experiencia omnicanal ininterrumpida.
+                    </p>
+                </div>
+            </article>
+
+            <!-- TARJETA 2: Confianza -->
+            <article class="glass-card animate-enter delay-2 rounded-3xl p-7 flex flex-col h-full">
+                <header class="mb-4">
+                    <h2 class="font-bold text-sm uppercase tracking-wider text-gray-500 dark:text-slate-400">2. Factores de Confianza</h2>
+                </header>
+                <div class="relative w-full h-48 mb-6 flex-shrink-0">
+                    <canvas id="chartTrust"></canvas>
+                </div>
+                <div class="mt-auto bg-ux-primary/5 dark:bg-ux-primary/10 border border-ux-primary/10 rounded-2xl p-4">
+                    <p class="text-sm text-ux-darkest dark:text-ux-light leading-relaxed">
+                        <span class="font-black tracking-wide text-[11px] uppercase bg-ux-primary text-white px-2 py-1 rounded-md mr-1 shadow-sm">Insight</span><br/>
+                        Para combatir el temor a las estafas en redes, las reseñas visuales son más efectivas que los sellos de seguridad bancaria. Integrar <strong>Social Proof (fotos de clientes)</strong> destacado en el primer *scroll* de la página de producto.
+                    </p>
+                </div>
+            </article>
+
+            <!-- TARJETA 3: Fricciones -->
+            <article class="glass-card animate-enter delay-3 rounded-3xl p-7 flex flex-col h-full">
+                <header class="mb-4">
+                    <h2 class="font-bold text-sm uppercase tracking-wider text-gray-500 dark:text-slate-400">3. Análisis de Fricciones</h2>
+                </header>
+                <div class="relative w-full h-48 mb-6 flex-shrink-0">
+                    <canvas id="chartFrictions"></canvas>
+                </div>
+                <div class="mt-auto bg-ux-primary/5 dark:bg-ux-primary/10 border border-ux-primary/10 rounded-2xl p-4">
+                    <p class="text-sm text-ux-darkest dark:text-ux-light leading-relaxed">
+                        <span class="font-black tracking-wide text-[11px] uppercase bg-ux-primary text-white px-2 py-1 rounded-md mr-1 shadow-sm">Insight</span><br/>
+                        La incertidumbre (tallas) y la mala optimización (velocidad) rompen la conversión. Eliminar tablas de tallas tradicionales e invertir recursos técnicos en <strong>Lazy Loading</strong> de imágenes.
+                    </p>
+                </div>
+            </article>
+
+            <!-- TARJETA 4: Priority Score (Ancha) -->
+            <article class="glass-card animate-enter delay-4 rounded-3xl p-7 flex flex-col h-full lg:col-span-2 relative overflow-hidden">
+                <!-- Decoración de brillo interior -->
+                <div class="absolute -top-10 -right-10 w-40 h-40 bg-ux-light rounded-full blur-3xl opacity-20 pointer-events-none"></div>
+                
+                <header class="mb-4">
+                    <h2 class="font-bold text-sm uppercase tracking-wider text-gray-500 dark:text-slate-400">4. Priority Score: Requisitos en Página de Producto</h2>
+                </header>
+                <div class="relative w-full h-56 mb-6 flex-shrink-0">
+                    <canvas id="chartPriority"></canvas>
+                </div>
+                <div class="mt-auto bg-gradient-to-r from-ux-primary/5 to-ux-secondary/10 border border-ux-primary/10 rounded-2xl p-5">
+                    <p class="text-sm text-ux-darkest dark:text-ux-light leading-relaxed">
+                        <span class="font-black tracking-wide text-[11px] uppercase bg-gradient-to-r from-ux-darkest to-ux-primary text-white px-3 py-1.5 rounded-md mr-2 shadow-md">Insight Principal</span><br/>
+                        Los usuarios prefieren resolver sus dudas de manera autónoma y tecnológica. El <strong>Asistente de Tallas Interactivo</strong> (85/100) es el feature más valioso y debe ser el CTA secundario en la interfaz. El chat en vivo (15/100) resulta invasivo y debe omitirse para limpiar el *UI clutter*.
+                    </p>
+                </div>
+            </article>
+
+            <!-- TARJETA 5: Checkout -->
+            <article class="glass-card animate-enter delay-5 rounded-3xl p-7 flex flex-col h-full">
+                <header class="mb-4">
+                    <h2 class="font-bold text-sm uppercase tracking-wider text-gray-500 dark:text-slate-400">5. MVP del Checkout</h2>
+                </header>
+                <div class="relative w-full h-56 mb-6 flex-shrink-0">
+                    <canvas id="chartCheckout"></canvas>
+                </div>
+                <div class="mt-auto bg-ux-primary/5 dark:bg-ux-primary/10 border border-ux-primary/10 rounded-2xl p-4">
+                    <p class="text-sm text-ux-darkest dark:text-ux-light leading-relaxed">
+                        <span class="font-black tracking-wide text-[11px] uppercase bg-ux-primary text-white px-2 py-1 rounded-md mr-1 shadow-sm">Insight</span><br/>
+                        Construir un <strong>Guest Checkout de 1 página</strong>. Calcular envíos de forma temprana, integrar Nequi/PSE como pago a 1-clic y añadir una micro-interacción para "Marcar como regalo".
+                    </p>
+                </div>
+            </article>
+
+        </main>
+    </div>
+
+    <!-- Script de Inicialización de Chart.js y Lógica -->
+    <script>
+        // 1. Configuración de Paleta de Colores Exigida
+        const colors = {
+            darkest: '#7A3CE3',
+            primary: '#9255FD',
+            secondary: '#A877FD',
+            light: '#C4A1FF'
+        };
+
+        // Función para colores dinámicos de Chart.js basados en el tema de Tailwind
+        const getTextColor = () => document.documentElement.classList.contains('dark') ? '#cbd5e1' : '#475569';
+        const getGridColor = () => document.documentElement.classList.contains('dark') ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)';
+
+        // 2. Configuración Global Chart.js (Con animaciones fluidas)
+        Chart.defaults.font.family = 'Inter, sans-serif';
+        Chart.defaults.color = '#475569'; // Default light
+        Chart.defaults.plugins.tooltip.backgroundColor = 'rgba(15, 23, 42, 0.95)';
+        Chart.defaults.plugins.tooltip.titleColor = '#ffffff';
+        Chart.defaults.plugins.tooltip.padding = 12;
+        Chart.defaults.plugins.tooltip.cornerRadius = 8;
+        // Animaciones personalizadas
+        Chart.defaults.animation = {
+            duration: 2000,
+            easing: 'easeOutQuart'
+        };
+        
+        let charts = [];
+
+        // Gráfico 1: Dispositivos (Doughnut)
+        const ctx1 = document.getElementById('chartDevices').getContext('2d');
+        charts.push(new Chart(ctx1, {
+            type: 'doughnut',
+            data: {
+                labels: ['Celular (Solo)', 'Celular a PC'],
+                datasets: [{
+                    data: [50, 50],
+                    backgroundColor: [colors.primary, colors.light],
+                    borderWidth: 2,
+                    borderColor: 'transparent',
+                    hoverOffset: 8
+                }]
+            },
+            options: { 
+                responsive: true, 
+                maintainAspectRatio: false, 
+                cutout: '75%',
+                plugins: { legend: { position: 'bottom', labels: { padding: 20, usePointStyle: true } } } 
+            }
+        }));
+
+        // Gráfico 2: Factores de Confianza (Bar)
+        const ctx2 = document.getElementById('chartTrust').getContext('2d');
+        charts.push(new Chart(ctx2, {
+            type: 'bar',
+            data: {
+                labels: ['Reseñas Reales', 'Pasarelas Pago', 'Redes Sociales'],
+                datasets: [{
+                    label: 'Impacto Confianza',
+                    data: [3, 2, 2],
+                    backgroundColor: [colors.primary, colors.secondary, colors.light],
+                    borderRadius: 8,
+                    barPercentage: 0.5
+                }]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: { 
+                    y: { beginAtZero: true, ticks: { stepSize: 1 } },
+                    x: { grid: { display: false } }
+                }
+            }
+        }));
+
+        // Gráfico 3: Fricciones (Horizontal Bar)
+        const ctx3 = document.getElementById('chartFrictions').getContext('2d');
+        charts.push(new Chart(ctx3, {
+            type: 'bar',
+            data: {
+                labels: ['Tallas Confusas', 'Lentitud Web'],
+                datasets: [{
+                    label: 'Nivel de Dolor',
+                    data: [3, 3],
+                    backgroundColor: colors.darkest,
+                    borderRadius: 8,
+                    barPercentage: 0.5
+                }]
+            },
+            options: {
+                indexAxis: 'y', 
+                responsive: true, 
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: { 
+                    x: { beginAtZero: true, ticks: { stepSize: 1 } },
+                    y: { grid: { display: false } }
+                }
+            }
+        }));
+
+        // Gráfico 4: Priority Score (Horizontal Bar 0-100)
+        const ctx4 = document.getElementById('chartPriority').getContext('2d');
+        charts.push(new Chart(ctx4, {
+            type: 'bar',
+            data: {
+                labels: ['Asistente de Tallas', 'Galería de Fotos', 'Tabla de Medidas', 'Chat en Vivo'],
+                datasets: [{
+                    label: 'Score (0-100)',
+                    data: [85, 75, 45, 15],
+                    backgroundColor: [
+                        colors.darkest,
+                        colors.primary,
+                        colors.secondary,
+                        colors.light
+                    ],
+                    borderRadius: 8,
+                    barPercentage: 0.6
+                }]
+            },
+            options: {
+                indexAxis: 'y', 
+                responsive: true, 
+                maintainAspectRatio: false,
+                plugins: { 
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: { label: (ctx) => `${ctx.raw} Puntos` }
+                    }
+                },
+                scales: {
+                    x: { 
+                        beginAtZero: true,
+                        max: 100,
+                        title: { display: true, text: 'Score Relevancia (0-100)', font: { weight: 'bold' } }
+                    },
+                    y: { grid: { display: false } }
+                }
+            }
+        }));
+
+        // Gráfico 5: Checkout MVP (Doughnut)
+        const ctx5 = document.getElementById('chartCheckout').getContext('2d');
+        charts.push(new Chart(ctx5, {
+            type: 'doughnut',
+            data: {
+                labels: ['Logística (Fecha)', 'Pagos Locales', 'Guest Checkout', 'Regalo'],
+                datasets: [{
+                    data: [3, 3, 2, 2],
+                    backgroundColor: [colors.darkest, colors.primary, colors.secondary, colors.light],
+                    borderWidth: 2,
+                    borderColor: 'transparent',
+                    hoverOffset: 8
+                }]
+            },
+            options: { 
+                responsive: true, 
+                maintainAspectRatio: false, 
+                cutout: '70%',
+                plugins: { legend: { position: 'right', labels: { usePointStyle: true, padding: 15 } } } 
+            }
+        }));
+
+        // 3. Lógica Theme Toggle & Actualización Dinámica de Charts
+        const themeBtn = document.getElementById('themeToggle');
+        
+        function updateChartColors() {
+            const currentTextColor = getTextColor();
+            const currentGridColor = getGridColor();
+
+            charts.forEach(chart => {
+                chart.options.color = currentTextColor;
+                
+                if(chart.options.plugins.legend) {
+                    chart.options.plugins.legend.labels.color = currentTextColor;
+                }
+                
+                if(chart.options.scales) {
+                    ['x', 'y'].forEach(axis => {
+                        if(chart.options.scales[axis]) {
+                            chart.options.scales[axis].ticks.color = currentTextColor;
+                            if(chart.options.scales[axis].title) chart.options.scales[axis].title.color = currentTextColor;
+                            if(chart.options.scales[axis].grid) chart.options.scales[axis].grid.color = currentGridColor;
+                        }
+                    });
+                }
+                
+                // Pequeña animación extra al cambiar de tema para darle pulido
+                chart.update('none'); 
+            });
+        }
+
+        // Run once on load to set initial colors based on HTML class (light)
+        updateChartColors();
+
+        themeBtn.addEventListener('click', () => {
+            const html = document.documentElement;
+            html.classList.toggle('dark');
+            updateChartColors();
+        });
+
+    </script>
+</body>
+</html>
